@@ -22,9 +22,17 @@ public class Program
             .CreateLogger();
 
         var builder = WebApplication.CreateBuilder(args);
-
+        builder.Configuration
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables();
         // Use Serilog
         builder.Host.UseSerilog();
+        builder.WebHost.ConfigureKestrel((context, options) =>
+        {
+            options.Configure(context.Configuration.GetSection("Kestrel"));
+        });
 
         // appsettings.json
         builder.Services.Configure<BotSetting>(
