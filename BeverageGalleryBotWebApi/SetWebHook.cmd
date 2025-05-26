@@ -1,0 +1,1 @@
+curl -X POST "https://api.telegram.org/bot<your-bot-token>/setWebhook?url=https://yourdomain.com/api/BotWebhook"

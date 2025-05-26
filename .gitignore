@@ -2,3 +2,12 @@
 .vscode/
 bin/
 obj/
+appsettings.*.json
+**/appsettings.Development.json
+SetWebHookLocal.cmd
+StartNgrokLocal.cmd
+publish/
+Logs/
+*.tar
+*.zip
+*.7z
