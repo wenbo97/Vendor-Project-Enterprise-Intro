@@ -11,3 +11,5 @@ Logs/
 *.tar
 *.zip
 *.7z
+*.pem
+nginx.dev.conf

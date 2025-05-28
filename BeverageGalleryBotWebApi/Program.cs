@@ -1,4 +1,5 @@
-﻿using BeverageGalleryBotWebApi.Model;
+﻿using BeverageGalleryBotWebApi.Component;
+using BeverageGalleryBotWebApi.Model;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Telegram.Bot;
@@ -10,34 +11,40 @@ public class Program
     public static void Main(string[] args)
     {
 
-        // logging
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console() // Console
-            .WriteTo.File(
-                "Logs/BackendLog-.log",
-                rollingInterval: RollingInterval.Day, // Roll log by day.
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message}{NewLine}{Exception}"
-            )
-            .MinimumLevel.Information()
-            .CreateLogger();
-
         var builder = WebApplication.CreateBuilder(args);
+
         builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables();
+
         // Use Serilog
-        builder.Host.UseSerilog();
-        builder.WebHost.ConfigureKestrel((context, options) =>
+        builder.Host.UseSerilog((context, services, configuration) =>
         {
-            options.Configure(context.Configuration.GetSection("Kestrel"));
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(
+                    "Logs/BackendLog-.log",
+                    rollingInterval: RollingInterval.Day,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message}{NewLine}{Exception}"
+                );
         });
 
         // appsettings.json
-        builder.Services.Configure<BotSetting>(
-            builder.Configuration.GetSection("BotSetting")
-        );
+        builder.WebHost.ConfigureKestrel(serverOptions =>
+        {
+            serverOptions.ListenAnyIP(5000); // HTTP
+            serverOptions.ListenAnyIP(5001, listenOptions =>
+            {
+                listenOptions.UseHttps();
+            });
+        });
+
+        builder.Services.Configure<BotSetting>(builder.Configuration.GetSection("BotSetting"));
 
         builder.Services.AddSingleton<ITelegramBotClient>(sp =>
         {
@@ -51,7 +58,9 @@ public class Program
         WebApplication app = builder.Build();
 
         app.MapControllers();
-
+        app.UseSerilogRequestLogging();
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.MapGet("/", () => "BeverageGallery Bot API is running.");
         app.Run();
     }
 }
