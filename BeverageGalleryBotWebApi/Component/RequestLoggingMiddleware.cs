@@ -9,6 +9,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggi
     /// <returns></returns>
     public async Task Invoke(HttpContext context)
     {
+        logger.LogInformation("RAW Host header: {Host}", context.Request.Headers["Host"]);
         var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         var uIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? context.Connection.RemoteIpAddress?.ToString();
         var path = context.Request.Path;

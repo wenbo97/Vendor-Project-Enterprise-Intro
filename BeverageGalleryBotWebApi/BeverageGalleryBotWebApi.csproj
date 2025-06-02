@@ -28,6 +28,12 @@
         <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.deps.json" />
         <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.runtimeconfig.json" />
         <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.staticwebassets.endpoints.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\appsettings.Development.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\appsettings.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\appsettings.Production.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\BeverageGalleryBotWebApi.deps.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\BeverageGalleryBotWebApi.runtimeconfig.json" />
+        <_ContentIncludedByDefault Remove="publish\publish\BeverageGalleryBotWebApi.staticwebassets.endpoints.json" />
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Component\ExceptionHandlingMiddleware.cs" />

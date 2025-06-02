@@ -76,23 +76,43 @@ public class Program
         
         // Add controllers
         builder.Services.AddHttpClient();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder
+                    .SetIsOriginAllowed(origin =>
+                        origin == "https://snusfactorycn.com" ||
+                        origin == "https://www.snusfactorycn.com" ||
+                        origin == "https://api.snusfactorycn.com"
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+
         builder.Services.AddControllers().AddNewtonsoftJson();
 
         // Build app
         var app = builder.Build();
 
-        // Middleware pipeline
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-            ForwardLimit = 2 // Cloudflare+Nginx
+            ForwardLimit = 2
         });
-        app.UseSerilogRequestLogging();
+
+        app.UseRouting();                     // Enable routing
+        app.UseCors("AllowAll");              // Enable CORS
+        app.UseSerilogRequestLogging();       // Enable Serilog
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<RequestRateLimitingMiddleware>();
+
+        // app.UseAuthorization();
+
         app.MapGet("/", () => "BeverageGallery service API is running.");
         app.MapControllers();
-
         app.Run();
     }
 }
