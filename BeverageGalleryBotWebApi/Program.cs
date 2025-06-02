@@ -1,7 +1,11 @@
 ﻿using BeverageGalleryBotWebApi.Component;
 using BeverageGalleryBotWebApi.Model;
+using BeverageGalleryBotWebApi.Provider;
+using BeverageGalleryBotWebApi.Service;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using Serilog;
+using StackExchange.Redis;
 using Telegram.Bot;
 
 namespace BeverageGalleryBotWebApi;
@@ -10,16 +14,16 @@ public class Program
 {
     public static void Main(string[] args)
     {
-
         var builder = WebApplication.CreateBuilder(args);
 
+        // Load config
         builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables();
 
-        // Use Serilog
+        // Setup Serilog
         builder.Host.UseSerilog((context, services, configuration) =>
         {
             configuration
@@ -34,33 +38,61 @@ public class Program
                 );
         });
 
-        // appsettings.json
+        // Setup Kestrel
         builder.WebHost.ConfigureKestrel(serverOptions =>
         {
-            serverOptions.ListenAnyIP(5000); // HTTP
-            serverOptions.ListenAnyIP(5001, listenOptions =>
-            {
-                listenOptions.UseHttps();
-            });
+            serverOptions.ListenAnyIP(5003); // HTTP
+            // serverOptions.ListenLocalhost(5001, listenOptions => { listenOptions.UseHttps(); });
         });
 
+        // Load Bot and Mongo Settings
         builder.Services.Configure<BotSetting>(builder.Configuration.GetSection("BotSetting"));
+        builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDBSetting"));
+        builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("RedisSetting"));
 
+        // Telegram Bot Client
         builder.Services.AddSingleton<ITelegramBotClient>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<BotSetting>>().Value;
             return new TelegramBotClient(options.BotToken);
         });
-
+        
+        // Custom services
+        builder.Services.AddSingleton<MongoDBClientProvider>();
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<RedisOptions>>().Value;
+            return ConnectionMultiplexer.Connect(options.RedisEndpoint);
+        });
+        
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+        
+        // Redis limiter
+        builder.Services.AddSingleton<RedisRateLimiter>();
+        
+        // Add controllers
         builder.Services.AddHttpClient();
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddNewtonsoftJson();
 
-        WebApplication app = builder.Build();
+        // Build app
+        var app = builder.Build();
 
-        app.MapControllers();
+        // Middleware pipeline
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+            ForwardLimit = 2 // Cloudflare+Nginx
+        });
         app.UseSerilogRequestLogging();
         app.UseMiddleware<RequestLoggingMiddleware>();
-        app.MapGet("/", () => "BeverageGallery Bot API is running.");
+        app.UseMiddleware<RequestRateLimitingMiddleware>();
+        app.MapGet("/", () => "BeverageGallery service API is running.");
+        app.MapControllers();
+
         app.Run();
     }
 }

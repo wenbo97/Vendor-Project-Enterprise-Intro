@@ -1,17 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<RootNamespace>BeverageGalleryBotWebApi</RootNamespace>
-		<AssemblyName>BeverageGalleryBotWebApi</AssemblyName>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Telegram.Bot" Version="22.5.2-dev.5" />
-		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-		<PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-	</ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>BeverageGalleryBotWebApi</RootNamespace>
+        <AssemblyName>BeverageGalleryBotWebApi</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Telegram.Bot"/>
+        <PackageReference Include="Serilog.AspNetCore"/>
+        <PackageReference Include="Serilog.Settings.Configuration"/>
+        <PackageReference Include="Serilog.Sinks.Console"/>
+        <PackageReference Include="Serilog.Sinks.File"/>
+        <PackageReference Include="StackExchange.Redis" />
+        <PackageReference Include="MongoDB.Driver" />
+        <PackageReference Include="MongoDB.Bson" />
+    </ItemGroup>
+    <ItemGroup>
+        <_ContentIncludedByDefault Remove="BeverageGalleryBotWebApi.Test\obj\BeverageGalleryBotWebApi.Test.csproj.nuget.dgspec.json"/>
+        <_ContentIncludedByDefault Remove="BeverageGalleryBotWebApi.Test\obj\project.assets.json"/>
+        <_ContentIncludedByDefault Remove="BeverageGalleryBotWebApi.Test\obj\project.packagespec.json"/>
+        <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+        <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+        <_ContentIncludedByDefault Remove="publish\appsettings.Production.json" />
+        <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.deps.json" />
+        <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.runtimeconfig.json" />
+        <_ContentIncludedByDefault Remove="publish\BeverageGalleryBotWebApi.staticwebassets.endpoints.json" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Component\ExceptionHandlingMiddleware.cs" />
+    </ItemGroup>
 </Project>

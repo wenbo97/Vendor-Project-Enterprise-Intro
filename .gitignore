@@ -1,7 +1,12 @@
 .vs/
 .vscode/
+.idea/
+.git/
+
 bin/
 obj/
+configs/
+data/
 appsettings.*.json
 **/appsettings.Development.json
 SetWebHookLocal.cmd
@@ -13,3 +18,5 @@ Logs/
 *.7z
 *.pem
 nginx.dev.conf
+*.pdf
+*.xlsx

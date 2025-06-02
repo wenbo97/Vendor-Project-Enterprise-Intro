@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36121.58 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeverageGalleryBotWebApi", "BeverageGalleryBotWebApi.csproj", "{ED058C84-FE38-4D60-8601-F0A4EB1F9705}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeverageGalleryBotWebApi", ".\BeverageGalleryBotWebApi\BeverageGalleryBotWebApi.csproj", "{ED058C84-FE38-4D60-8601-F0A4EB1F9705}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeverageGalleryBotWebApi.Test", "BeverageGalleryBotWebApi.Test\BeverageGalleryBotWebApi.Test.csproj", "{155738F4-55A0-459A-BB41-F773F3EC8D31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{ED058C84-FE38-4D60-8601-F0A4EB1F9705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED058C84-FE38-4D60-8601-F0A4EB1F9705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED058C84-FE38-4D60-8601-F0A4EB1F9705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{155738F4-55A0-459A-BB41-F773F3EC8D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{155738F4-55A0-459A-BB41-F773F3EC8D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{155738F4-55A0-459A-BB41-F773F3EC8D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{155738F4-55A0-459A-BB41-F773F3EC8D31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -12,20 +12,10 @@ namespace BeverageGalleryBotWebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class BotWebhookController : ControllerBase
+public class BotWebhookController(ILogger<BotWebhookController> logger, ITelegramBotClient botClient) : ControllerBase
 {
     private const string UnkownUsr = "Unknown";
 
-    private ILogger<BotWebhookController> logger;
-
-
-    private readonly ITelegramBotClient botClient;
-
-    public BotWebhookController(ILogger<BotWebhookController> logger, ITelegramBotClient botClient)
-    {
-        this.logger = logger;
-        this.botClient = botClient;
-    }
 
     /// <summary>
     /// Webhook endpoint for receiving Telegram update messages.
@@ -39,7 +29,7 @@ public class BotWebhookController : ControllerBase
         {
             if (update == null)
             {
-                this.logger.LogWarning("Received null update.");
+                logger.LogWarning("Received null update.");
                 return BadRequest();
             }
             Message botMessage = update.Message ?? throw new InvalidOperationException("Received null update.Message.");
@@ -67,7 +57,7 @@ public class BotWebhookController : ControllerBase
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, string.Format("Error processing Telegram update, ExMsg: [{0}]", ex.Message));
+            logger.LogError(ex, string.Format("Error processing Telegram update, ExMsg: [{0}]", ex.Message));
             return StatusCode(500, "Internal server error");
         }
     }
@@ -108,8 +98,8 @@ public class BotWebhookController : ControllerBase
 
     private async Task CallPop(Message botMessage, string usr)
     {
-        this.logger.LogInformation($"Received message: [{botMessage.Text}] from {usr}");
-        await this.botClient.SendMessage(
+        logger.LogInformation($"Received message: [{botMessage.Text}] from {usr}");
+        await botClient.SendMessage(
             chatId: botMessage.Chat.Id,
             text: ChatContent.WelCome,
             parseMode: ParseMode.Html,

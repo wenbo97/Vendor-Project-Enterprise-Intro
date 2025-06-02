@@ -1,16 +1,7 @@
 ﻿namespace BeverageGalleryBotWebApi.Component;
 
-public class RequestLoggingMiddleware
+public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<RequestLoggingMiddleware> _logger;
-
-    public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Middle ware for record user ip.
     /// </summary>
@@ -21,17 +12,24 @@ public class RequestLoggingMiddleware
         var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         var uIp = context.Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? context.Connection.RemoteIpAddress?.ToString();
         var path = context.Request.Path;
-
+        
+        var traceId = context.Request.Headers.TryGetValue("TraceId", out var traceHeader)
+            ? traceHeader.FirstOrDefault() ?? Guid.NewGuid().ToString()
+            : Guid.NewGuid().ToString();
+        
+        // log request trace id
+        context.Request.Headers["TraceId"] = traceId;
+        
         IHeaderDictionary headers = context.Request.Headers;
-        this._logger.LogInformation("===Request Headers===");
+        logger.LogInformation("===Request Headers===");
         foreach (var header in headers)
         {
-            this._logger.LogInformation("Header:[{Header}], Value:[{Value}]", header.Key.ToString(), header.Value.ToString());
+            logger.LogInformation("Header:[{Header}], Value:[{Value}]", header.Key.ToString(), header.Value.ToString());
         }
-        this._logger.LogInformation("===Request Headers End.===");
-
-        this._logger.LogInformation("Incoming request from public: [{IP}], user ip: [{UIP}] to {Path}", ip, uIp, path);
-
-        await _next(context); // Call the next middleware
+        logger.LogInformation("Incoming request from public: [{IP}], user ip: [{UIP}] to {Path}", ip, uIp, path);
+        
+        // log request trace id
+        context.Response.Headers["TraceId"] = traceId;
+        await next(context); // Call the next middleware
     }
 }
